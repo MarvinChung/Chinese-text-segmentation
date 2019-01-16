@@ -39,8 +39,9 @@ def getChinese(context):
 
 pre_is = -1 #find the class of the end of the word
 
-
-training_list = ['../training/as_training.utf8','../gold/as_training_words.utf8']
+#'../gold/as_training_words.utf8'
+#'../training/as_training.utf8'
+training_list = ['../training/as_training.utf8']
 for train in training_list: 
     print(train)   
     for line in open(train, 'r').readlines():
@@ -49,23 +50,18 @@ for train in training_list:
             #time.sleep(1)
             word = getChinese(p_word)   
             if(word==''):
-                flag = 1
-                for i in p_word:
-                    if(not i.isalpha()):
-                        flag = 0
-                        break
-                if(flag==1):
-                    #doEnglish
-                    S_ct = S_ct+1
-                    if(pre_is > -1):
-                        transition[pre_is][3] = transition[pre_is][3] + 1    
-                    pre_is = 3
-                    words.append(word)
+                #doEnglish and punc
+                S_ct = S_ct+1
+                if(pre_is > -1):
+                    transition[pre_is][3] = transition[pre_is][3] + 1    
+                pre_is = 3
+                words.append(p_word)
             else:
                 words.append(word)    
                 if(len(word)==1):
                     S_ct = S_ct+1
                     if(pre_is > -1):
+                        #pre-S
                         transition[pre_is][3] = transition[pre_is][3] + 1    
                     pre_is = 3     
                 else:

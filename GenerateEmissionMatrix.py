@@ -49,7 +49,8 @@ def add_to_dict(letter,dict_name):
     else:
         dict_name[letter] = dict_name[letter] + 1
 ct = 0
-training_list = ['../training/as_training.utf8','../gold/as_training_words.utf8']
+#,'../gold/as_training_words.utf8'
+training_list = ['../training/as_training.utf8']
 for train in training_list:  
     print(train)   
     for line in open(train, 'r').readlines():
@@ -58,17 +59,11 @@ for train in training_list:
             word = getChinese(p_word)
             #print(word) 
             if(word==''):
-                flag = 1
-                for i in p_word:
-                    if(not i.isalpha()):
-                        flag = 0
-                        break
-                if(flag==1):
-                    #doEnglish
-                    S_ct = S_ct+1
-                    S.append(word)
-                    add_to_dict(word,S_dict)
-                    add_to_dict(word,All_letters_dict)
+                #doEnglish and punc
+                S_ct = S_ct+1
+                S.append(p_word)
+                add_to_dict(p_word,S_dict)
+                add_to_dict(p_word,All_letters_dict)
             else:
                 if(len(word)==1):
                     S_ct = S_ct+1
@@ -93,11 +88,20 @@ for train in training_list:
                         #all_letters.append(word[i+1])
                         add_to_dict(word[i+1],All_letters_dict)
                         add_to_dict(word[i+1],M_dict)
-print("len",len(All_letters_dict))
+print("len of all words dictionary:",len(All_letters_dict))
 emission = np.zeros((4,len(All_letters_dict)),dtype='double')
+def state(index):
+    if(index==0):
+        return "B"
+    if(index==1):
+        return "E"
+    if(index==2):
+        return "M"
+    if(index==3):
+        return "S"
 def insert_emission(dict_name,ct,index):
-    i = 0
-    dict_for_good_turing = {}
+    
+    dict_for_good_turing = dict()
     dict_for_good_turing[0] = 0
     Total_nm_in_observ = 0
     max_ct = 0;
@@ -115,7 +119,12 @@ def insert_emission(dict_name,ct,index):
 
         else:
             dict_for_good_turing[0] = dict_for_good_turing[0] + 1
-    #good-turing           
+
+    #good-turing
+    # print("Total (seen event)*number in ",state(index)," is ",Total_nm_in_observ)
+    #print("ct:",ct,"Total_nm_in_observ",Total_nm_in_observ)
+    print("Total unseen event in ",state(index)," is ",dict_for_good_turing[0])  
+    i = 0         
     for item in All_letters_dict:
         if(item in dict_name and dict_name[item] > 0 and dict_name[item] < max_ct):
             n_r_0  = dict_for_good_turing[dict_name[item]]
@@ -129,14 +138,19 @@ def insert_emission(dict_name,ct,index):
             r_1 = dict_name[item] + k
             r_star = float(r_1) * float(n_r_1)/float(n_r_0)
             emission[index][i] = r_star/Total_nm_in_observ
-        elif(item not in dict_name or dict_name[item] == 0):
+        elif(item not in dict_name):
             #case r is 0 
-            dict_name[item] = 0
+            #dict_name[item] = 0
             n_r_0  = dict_for_good_turing[0]
-            k = 1 
-            while(dict_name[item] + k not in dict_for_good_turing):
-                k = k + 1
-            n_r_1 = dict_for_good_turing[0 + k]
+            #k = 1 
+            # while(0 + k not in dict_for_good_turing):
+            #     k = k + 1
+            # if(k>2):
+            #     print("good turing is strange")
+            n_r_1 = dict_for_good_turing[1]
+            if dict_for_good_turing[1]==0:
+                print("dict_for_good_turing[1]==0!")
+                exit(1)
             r_star = float(n_r_1)/float(n_r_0)
             emission[index][i] = r_star/Total_nm_in_observ
         i = i + 1

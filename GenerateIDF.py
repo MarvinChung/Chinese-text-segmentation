@@ -10,7 +10,7 @@ from subprocess import run, PIPE
 inv_idf_dict = {}
 idf_dict = {}
 file_ct = 0
-max_thread = 100
+max_thread = 50
 """
 Viterbi_path = "Viterbi.py"
 def child(r, w):

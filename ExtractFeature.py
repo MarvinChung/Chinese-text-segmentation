@@ -8,7 +8,7 @@ import pickle
 import threading
 from collections import Counter
 from subprocess import run, PIPE
-max_thread = 100
+max_thread = 50
 with open('idf_dict.pickle', 'rb') as handle:
     idf_dict = pickle.load(handle)
 """

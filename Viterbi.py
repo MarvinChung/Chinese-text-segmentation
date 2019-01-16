@@ -21,7 +21,6 @@ B_prob = NumsOfBEMS[0]/All_cts
 E_prob = NumsOfBEMS[1]/All_cts
 M_prob = NumsOfBEMS[2]/All_cts
 S_prob = NumsOfBEMS[3]/All_cts
-emission = emission
 def StateToBEMS(state):
     if state == 0:
         return "B"
@@ -44,6 +43,14 @@ def getProb(state,observ):
             return M_prob
         elif state == 3:
             return S_prob
+        # if state == 0:
+        #     return 0.25
+        # elif state == 1:
+        #     return 0.25
+        # elif state == 2:
+        #     return 0.25
+        # elif state == 3:
+        #     return 0.25
     else:
         return emission[state][list(All_letters_dict.keys()).index(observ)]
 def Viterbi(observSeq,mode,seg):
@@ -51,42 +58,43 @@ def Viterbi(observSeq,mode,seg):
     chinese_word = []
     english_character = ""
     words = []
-    non_punc = []
+    clean_words = []
     #print(observSeq)
     backpath = []
     for character in observSeq:
         if character >= u'\u4E00' and character <= u'\u9FA5':
             if(len(english_character)>0):
                 words.append(english_character)
-                non_punc.append(english_character)
+                clean_words.append(english_character)
                 english_character = ""
             chinese_word.append(character)
-            non_punc.append(character)
+            clean_words.append(character)
             words.append(character)
         elif(character.isalpha()):
             english_character = english_character + character
         else:
             if(len(english_character)>0):
                 words.append(english_character)
-                non_punc.append(english_character)
+                clean_words.append(english_character)
                 english_character= ""
             if(character!=" "):
                 words.append(character)
+                clean_words.append(character)
     if(len(english_character)>0):
         words.append(english_character)
-        non_punc.append(english_character)
+        clean_words.append(english_character)
         english_character = ""
     #print(words)
-    if(len(non_punc)>0):
+    if(len(clean_words)>0):
         delta = np.zeros((4,len(All_letters_dict)),dtype='double')
         pre = np.zeros((4,len(All_letters_dict)),dtype='int')
         #initialize
         for i in range(4):
-            delta[i][0] = PI[i][0] * getProb(i,non_punc[0])
+            delta[i][0] = PI[i][0] * getProb(i,clean_words[0])
         #start viterbi
-        for i in range(1,len(chinese_word),1):
+        for i in range(1,len(clean_words),1):
             for j in range(4):
-                delta[j][i] = getProb(j,non_punc[i]) * np.max([delta[state][i-1]*transition[state][j] for state in range(4)])
+                delta[j][i] = getProb(j,clean_words[i]) * np.max([delta[state][i-1]*transition[state][j] for state in range(4)])
                 pre[j][i] = np.argmax([delta[state][i-1]*transition[state][j] for state in range(4)])
                 #print(i,j,"is",delta[j][i])
                 #print("transition",transition)
@@ -97,15 +105,15 @@ def Viterbi(observSeq,mode,seg):
         
         #print("wtf",np.max([delta[state][len(chinese_word)-1] for state in range(4)]))
         #print("wtf2",np.argmax([delta[state][len(chinese_word)-1] for state in range(4)]))
-        next_pre = np.argmax([delta[state][len(non_punc)-1] for state in range(4)])
+        next_pre = np.argmax([delta[state][len(clean_words)-1] for state in range(4)])
         #print("next_pre",next_pre)
         backpath.append(StateToBEMS(next_pre))
-        backpath.append(non_punc[-1])
-        for i in range(len(non_punc)-2,-1,-1):
+        backpath.append(clean_words[-1])
+        for i in range(len(clean_words)-2,-1,-1):
             next_pre = pre[next_pre][i+1]
             #print("next_pre",next_pre)
             backpath.append(StateToBEMS(next_pre))
-            backpath.append(non_punc[i]) 
+            backpath.append(clean_words[i]) 
         backpath.reverse()
         if(int(mode) == 0):
             print(backpath)
@@ -130,7 +138,7 @@ def Viterbi(observSeq,mode,seg):
         else:
             output=output+words[i]+seg_word
     #print(words)
-    #print(non_punc)
+    #print(clean_words)
     print(output)
 if __name__ == '__main__':
     mode = 1
