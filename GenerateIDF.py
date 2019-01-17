@@ -71,7 +71,7 @@ def read_lyric(dirPath,fileNames):
                 for word in words:
                     if word not in temp_dict:
                         temp_dict[word] = 1
-                        if word not in idf_dict:
+                        if word not in inv_idf_dict:
                             inv_idf_dict[word] = 1
                         else:
                             inv_idf_dict[word] = inv_idf_dict[word] + 1
