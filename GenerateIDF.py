@@ -10,7 +10,7 @@ from subprocess import run, PIPE
 inv_idf_dict = {}
 idf_dict = {}
 file_ct = 0
-max_thread = 50
+max_thread = 70
 """
 Viterbi_path = "Viterbi.py"
 def child(r, w):
@@ -74,7 +74,7 @@ def read_lyric(dirPath,fileNames):
                         if word not in idf_dict:
                             inv_idf_dict[word] = 1
                         else:
-                            inv_idf_dict[word] = idf_dict[word] + 1
+                            inv_idf_dict[word] = inv_idf_dict[word] + 1
 def split_list(arr, size):
      arrs = []
      
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         if(max_thread > len(fileNames)):
             avg = 1
         else:
-            avg = floor(len(fileNames)/max_thread)
+            avg = int(len(fileNames)/max_thread)
         arrs,thread_n = split_list(fileNames,avg)
         print("given thread n:",thread_n)
         for i in range(thread_n ):

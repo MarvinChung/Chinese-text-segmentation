@@ -5,7 +5,7 @@ import math
 import numpy as np
 import re
 import sys
-from gensim.models.word2vec import Word2Vec
+#from gensim.models.word2vec import Word2Vec
 #w2v_model = Word2Vec.load('word2vec.model')
 with open('All_letters_dict.pickle', 'rb') as handle:
     All_letters_dict = pickle.load(handle)
